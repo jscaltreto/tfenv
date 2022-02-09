@@ -10,6 +10,20 @@ function early_death() {
   exit 1;
 };
 
+function check_version_arm() {
+  local cmpver=${version%%-*};
+  local major=${cmpver%%.*};
+  cmpver=${cmpver#*.};
+  local minor=${cmpver%%.*};
+  cmpver=${cmpver#*.};
+  local patch=${cmpver%%.*};
+  if [[ $major -ge 1 && ( $minor -gt 0 || $patch -gt 1 ) ]]; then
+    echo $TFENV_ARCH;
+  else
+    echo "amd64";
+  fi
+}
+
 if [ -z "${TFENV_ROOT:-""}" ]; then
   # http://stackoverflow.com/questions/1055671/how-can-i-get-the-behavior-of-gnus-readlink-f-on-a-mac
   readlink_f() {
@@ -94,6 +108,7 @@ esac;
 
 case "$(uname -s)" in
   Darwin*)
+    TFENV_ARCH=$(check_version_arm);
     os="darwin_${TFENV_ARCH}";
     ;;
   MINGW64*)
